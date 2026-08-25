@@ -11,8 +11,14 @@
 </head>
 <body>
 
-    <div class="clock-container">
-        <div class="clock-date" id="current-datetime">กำลังโหลดวันเวลา...</div>
+    <!-- วันที่ มุมซ้ายบน -->
+    <div class="date-container">
+        <div class="clock-text" id="current-date">กำลังโหลดวันที่...</div>
+    </div>
+
+    <!-- เวลา มุมขวาบน -->
+    <div class="time-container">
+        <div class="clock-text" id="current-time">กำลังโหลดเวลา...</div>
     </div>
 
     <div class="layout-wrapper">
@@ -68,11 +74,13 @@
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear() + 543; 
+            const year = now.getFullYear() + 543; // แปลงเป็น พ.ศ.
 
             const timeString = now.toLocaleTimeString('th-TH', { hour12: false });
             
-            document.getElementById('current-datetime').innerText = `${day}/${month}/${year} | ${timeString}`;
+            // แยกการส่งค่าไปที่ ID ของวันที่และเวลา
+            document.getElementById('current-date').innerText = `${day}/${month}/${year}`;
+            document.getElementById('current-time').innerText = timeString;
         }
         setInterval(updateClock, 1000); 
         updateClock(); 
