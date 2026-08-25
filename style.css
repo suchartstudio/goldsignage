@@ -1,0 +1,178 @@
+/* 🌟 กำหนด CSS Variables เริ่มต้น */
+:root {
+    --bg-color: #FF0000;
+    --text-color: #FFFFFF;
+    --border-color: #FFFF00;
+    --marquee-bg: #8B0000;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; 
+    /* 🌟 เปลี่ยนมาใช้ Chakra Petch */
+    font-family: 'Chakra Petch', sans-serif;
+    background-color: var(--bg-color); /* ใช้ค่าจากตัวแปร */
+    color: var(--text-color); /* ใช้ค่าจากตัวแปร */
+    position: relative;
+    transition: background-color 0.5s ease;
+}
+
+/* ==================================
+   นาฬิกา มุมขวาบน
+   ================================== */
+.clock-container {
+    position: absolute;
+    top: 3vh;
+    right: 4vw;
+    color: var(--text-color);
+    text-align: right;
+    z-index: 100;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6); 
+}
+
+.clock-date {
+    font-size: clamp(1.5rem, 2.5vw, 4vh);
+    font-weight: 500;
+}
+
+/* ==================================
+   เค้าโครงหลัก
+   ================================== */
+.layout-wrapper {
+    width: 100vw;
+    height: 91vh; 
+    padding: 1.5vh 3vw; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.price-display-full {
+    width: 100%;
+    max-width: 1700px; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.logo-container {
+    height: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-logo {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.gold-category {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: opacity 0.3s; /* ให้การเปิดปิดสมูทขึ้น */
+}
+
+.gold-title {
+    font-size: clamp(2.5rem, 4vw, 5.5vh); /* ปรับให้ใหญ่ขึ้น */
+    font-weight: 700;
+    color: var(--border-color); /* ให้สีเข้ากับกรอบป้าย */
+    margin-bottom: 1vh;
+    text-align: center;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.price-container {
+    display: flex;
+    gap: 2.5vw; 
+    width: 100%;
+    justify-content: center;
+}
+
+.price-container.single-price .price-row {
+    width: 48.75%;
+    flex: none;
+}
+
+/* 🌟 กล่องแสดงราคา */
+.price-row {
+    display: flex;
+    flex: 1;
+    height: 20vh; 
+    border-radius: 25px; 
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45); 
+    border: 4px solid var(--border-color); /* ใช้ค่าจากตัวแปร */
+}
+
+.price-label {
+    width: 32%;
+    /* ปรับพื้นหลังให้เข้ากับสีกรอบ โดยใช้เทคนิคผสมสี */
+    background-color: var(--border-color);
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.1) 100%);
+    color: #000; /* สีดำจะตัดกับกรอบส่วนใหญ่ได้ดีสุด */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(2.5rem, 4vw, 5.5vh); 
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+    white-space: nowrap;
+}
+
+.price-value {
+    width: 68%;
+    background-color: #ffffff;
+    color: #000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(4.5rem, 8vw, 12vh); /* 🌟 ตัวเลขใหญ่ยักษ์ เต็มตา */
+    font-weight: 700;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    padding: 0 1vw;
+}
+
+.update-time {
+    font-size: clamp(1rem, 1.5vw, 2.5vh);
+    color: var(--border-color);
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* 🌟 แถบข้อความตัววิ่งด้านล่าง */
+.marquee-section {
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    height: 9vh;
+    background-color: var(--marquee-bg); /* ใช้ค่าจากตัวแปร */
+    border-top: 4px solid var(--border-color); /* ใช้ค่าจากตัวแปร */
+    color: var(--border-color);
+    display: flex;
+    align-items: center;
+    font-size: clamp(2rem, 4vh, 5.5vh); 
+    font-weight: 600;
+    z-index: 10;
+    overflow: hidden;
+}
+
+marquee {
+    width: 100%;
+    line-height: 9vh;
+}
