@@ -82,7 +82,7 @@ async function fetchGoldPrice() {
             barBuy: formatToIntegerPrice(barBuyEl.innerText),
             barSell: formatToIntegerPrice(barSellEl.innerText),
             ornamentSell: formatToIntegerPrice(ornSellEl.innerText),
-            updateTime: `อัพเดทล่าสุดตามสมาคมฯ: วันที่ ${new Date().toLocaleDateString('th-TH')} เวลา ${updateTimeEl.innerText.trim()}`
+            updateTime: `อัพเดทล่าสุดตามสมาคมฯ: วันที่  ${updateTimeEl.innerText.trim()}`
         };
     } catch (error) {
         console.error("เกิดข้อผิดพลาดในการดึงราคา:", error);
