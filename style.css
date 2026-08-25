@@ -46,7 +46,7 @@ html, body {
 }
 
 .clock-text {
-    font-size: clamp(1.5rem, 2.5vw, 4vh);
+    font-size: clamp(3rem, 4vw, 5vh);
     font-weight: 500;
 }
 
