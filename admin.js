@@ -14,7 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// เก็บสถานะว่าใครล็อกอินอยู่
 let loggedInUser = null; 
 
 window.checkLogin = async function() {
@@ -23,7 +22,6 @@ window.checkLogin = async function() {
 
     if (!user || !pass) return alert("กรุณาใส่รหัสผ่านและชื่อผู้ใช้");
 
-    // 🌟 1. กรณีเป็น Super Admin
     if (user === "admin" && pass === "987654321") {
         loggedInUser = { role: 'super', branchId: null };
         document.getElementById('login-section').style.display = "none";
@@ -31,9 +29,7 @@ window.checkLogin = async function() {
         document.getElementById('btn-create-branch').style.display = "inline-block";
         document.getElementById('super-admin-controls').style.display = "block";
         await loadBranches();
-    } 
-    // 🌟 2. กรณีเป็น Branch Admin (ค้นหาจาก Firebase)
-    else {
+    } else {
         try {
             const q = query(collection(db, "branches"), where("username", "==", user), where("password", "==", pass));
             const querySnapshot = await getDocs(q);
@@ -62,14 +58,17 @@ window.toggleMode = function() {
     document.getElementById('manual-inputs').style.display = (mode === 'manual') ? 'block' : 'none';
 };
 
-// โหลดรายการสาขา (อิงตามสิทธิ์)
+window.toggleOrnMode = function() {
+    const mode = document.getElementById('orn-buy-mode').value;
+    document.getElementById('orn-percent-setting').style.display = (mode === 'percentage') ? 'block' : 'none';
+};
+
 async function loadBranches() {
     const select = document.getElementById('branch-select');
     select.innerHTML = '';
     
     try {
         if (loggedInUser.role === 'super') {
-            // โหลดทั้งหมด
             const querySnapshot = await getDocs(collection(db, "branches"));
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -79,7 +78,6 @@ async function loadBranches() {
                 select.appendChild(option);
             });
         } else {
-            // โหลดแค่สาขาของตัวเอง
             const docSnap = await getDoc(doc(db, "branches", loggedInUser.branchId));
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -95,7 +93,6 @@ async function loadBranches() {
     }
 }
 
-// สร้างสาขาใหม่ (Super Admin)
 window.createNewBranch = async function() {
     if (loggedInUser.role !== 'super') return;
 
@@ -105,7 +102,6 @@ window.createNewBranch = async function() {
     const username = prompt(`👤 2/3: กำหนด Username สำหรับสาขา "${branchName}":\n(ใช้สำหรับล็อกอิน)`);
     if (!username) return alert("การสร้างถูกยกเลิก: ต้องระบุ Username");
 
-    // เช็คว่า Username ซ้ำหรือไม่
     const q = query(collection(db, "branches"), where("username", "==", username));
     const snap = await getDocs(q);
     if (!snap.empty) return alert("❌ Username นี้มีผู้ใช้งานแล้ว กรุณาตั้งชื่ออื่น");
@@ -122,6 +118,10 @@ window.createNewBranch = async function() {
         logoUrl: "logo.png",
         showBar: true,
         showOrnament: true,
+        showOrnBuy: true,
+        showOrnSell: true,
+        ornBuyMode: 'percentage',
+        ornPercent: 5,
         showMarquee: true,
         bgColor: "#FF0000",
         textColor: "#FFFFFF",
@@ -161,13 +161,16 @@ window.saveSettings = async function() {
             marqueeColor: document.getElementById('color-marquee').value,
             showBar: document.getElementById('show-bar').checked,
             showOrnament: document.getElementById('show-ornament').checked,
+            showOrnBuy: document.getElementById('show-orn-buy').checked,
+            showOrnSell: document.getElementById('show-orn-sell').checked,
             showMarquee: document.getElementById('show-marquee').checked,
+            ornBuyMode: document.getElementById('orn-buy-mode').value,
+            ornPercent: parseFloat(document.getElementById('orn-percent-input').value) || 5,
             isAutoMode: isAutoMode,
             marquee: document.getElementById('marquee-input').value,
             updatedAt: new Date()
         };
 
-        // ถ้าเป็น Super Admin ให้สามารถแก้ไข Username/Password ได้ด้วย
         if (loggedInUser.role === 'super') {
             const newUsername = document.getElementById('branch-username').value.trim();
             const newPassword = document.getElementById('branch-password').value.trim();
@@ -192,7 +195,6 @@ window.saveSettings = async function() {
         saveBtn.innerText = "💾 บันทึกและอัปเดตหน้าจอ";
         saveBtn.disabled = false;
         
-        // โหลดชื่อสาขาใหม่ลง dropdown ถ้าชื่อเปลี่ยน
         if (loggedInUser.role === 'super') {
             const currentSelected = document.getElementById('branch-select').value;
             await loadBranches();
@@ -203,7 +205,6 @@ window.saveSettings = async function() {
 
 window.loadCurrentSettings = async function() {
     const branchId = document.getElementById('branch-select').value;
-    
     const currentUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
     document.getElementById('display-url').href = `${currentUrl}/index.html?branch=${branchId}`;
 
@@ -227,7 +228,13 @@ window.loadCurrentSettings = async function() {
 
         document.getElementById('show-bar').checked = data.showBar !== false;
         document.getElementById('show-ornament').checked = data.showOrnament !== false;
+        document.getElementById('show-orn-buy').checked = data.showOrnBuy !== false;
+        document.getElementById('show-orn-sell').checked = data.showOrnSell !== false;
         document.getElementById('show-marquee').checked = data.showMarquee !== false;
+        
+        document.getElementById('orn-buy-mode').value = data.ornBuyMode || "percentage";
+        document.getElementById('orn-percent-input').value = data.ornPercent !== undefined ? data.ornPercent : 5;
+        window.toggleOrnMode();
 
         document.getElementById('mode-select').value = data.isAutoMode ? "auto" : "manual";
         window.toggleMode();
