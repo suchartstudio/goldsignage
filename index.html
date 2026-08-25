@@ -6,13 +6,11 @@
     <title>Digital Signage</title>
     <link rel="icon" type="image/png" href="logo.png">
     
-    <!-- 🌟 เปลี่ยน Font เป็น Chakra Petch ตามที่คุณต้องการ -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- นาฬิกา มุมขวาบน -->
     <div class="clock-container">
         <div class="clock-date" id="current-datetime">กำลังโหลดวันเวลา...</div>
     </div>
@@ -20,12 +18,10 @@
     <div class="layout-wrapper">
         <div class="price-display-full">
             
-            <!-- โลโก้ร้าน -->
             <div class="logo-container">
                 <img id="shop-logo" src="logo.png" alt="โลโก้ร้าน" class="main-logo" onerror="this.style.display='none'">
             </div>
 
-            <!-- ราคาทองคำแท่ง -->
             <div id="section-bar" class="gold-category">
                 <div class="gold-title">ราคาทองคำแท่ง 96.5%</div>
                 <div class="price-container">
@@ -40,13 +36,11 @@
                 </div>
             </div>
 
-            <!-- ราคาทองรูปพรรณ -->
             <div id="section-ornament" class="gold-category">
                 <div class="gold-title">ราคาทองรูปพรรณ 96.5%</div>
-                <!-- แก้ไขให้มีทั้งรับซื้อและขายออกตามโครงสร้างใน DB -->
-                <div class="price-container">
-                    <div class="price-row">
-                        <div class="price-label">รับซื้อ</div>
+                <div class="price-container" id="ornament-container">
+                    <div class="price-row" id="ornament-buy-container">
+                        <div class="price-label" id="ornament-buy-label">รับซื้อ</div>
                         <div class="price-value" id="ornament-buy">-</div>
                     </div>
                     <div class="price-row" id="ornament-sell-container">
@@ -56,33 +50,28 @@
                 </div>
             </div>
 
-            <!-- เวลาอัปเดตราคาจากระบบ -->
             <div class="update-time" id="update-time">อัพเดทราคาล่าสุด: -</div>
 
         </div>
     </div>
 
-    <!-- แถบตัววิ่งด้านล่าง -->
     <div id="section-marquee" class="marquee-section">
         <marquee scrollamount="6" id="marquee-text">กำลังโหลดข้อมูล...</marquee>
     </div>
 
-    <!-- Element ที่ซ่อนไว้เพื่อป้องกัน JavaScript Error จาก display.js เดิม -->
     <div id="media-container" style="display: none;"></div>
 
     <script type="module" src="display.js"></script>
 
-    <!-- 🌟 สคริปต์สำหรับให้นาฬิกาเดินอัตโนมัติ (ปรับรูปแบบใหม่) -->
     <script>
         function updateClock() {
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear() + 543; // เปลี่ยนเป็น พ.ศ.
+            const year = now.getFullYear() + 543; 
 
             const timeString = now.toLocaleTimeString('th-TH', { hour12: false });
             
-            // รูปแบบ dd/mm/yyy | HH:mm:ss
             document.getElementById('current-datetime').innerText = `${day}/${month}/${year} | ${timeString}`;
         }
         setInterval(updateClock, 1000); 
