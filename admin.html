@@ -33,7 +33,6 @@
 <body>
 
     <div class="container">
-        <!-- 🌟 ส่วนล็อกอิน (แก้ไขให้รับ Username ด้วย) -->
         <div id="login-section">
             <h2>เข้าสู่ระบบผู้ดูแล (Admin)</h2>
             <div class="form-group">
@@ -51,9 +50,7 @@
             <h2>แผงควบคุม Digital Signage</h2>
             
             <div class="box">
-                <!-- 🌟 ปุ่มนี้จะเห็นเฉพาะ Super Admin -->
                 <button id="btn-create-branch" class="btn-secondary" onclick="createNewBranch()" style="display: none;">➕ สร้างสาขาใหม่</button>
-                
                 <div class="form-group">
                     <label for="branch-select">📌 เลือกร้าน/สาขาที่ต้องการตั้งค่า</label>
                     <select id="branch-select"></select>
@@ -61,7 +58,6 @@
                 <a id="display-url" class="display-link" href="#" target="_blank">🔗 เปิดหน้าจอแสดงผลของสาขานี้</a>
             </div>
 
-            <!-- 🌟 ส่วนตั้งค่าบัญชี (เห็นเฉพาะ Super Admin) -->
             <div id="super-admin-controls" class="box super-admin-box" style="display: none;">
                 <h4 style="color: #e65100; margin-top: 0; margin-bottom: 10px;">🛡️ ตั้งค่าบัญชีผู้ใช้สาขานี้ (Super Admin เท่านั้น)</h4>
                 <div class="grid-2">
@@ -101,9 +97,30 @@
 
             <h3>📺 ควบคุมการแสดงผลหน้าจอ</h3>
             <div class="box">
-                <div class="checkbox-group"><input type="checkbox" id="show-bar" checked><label>แสดงป้ายราคาทองคำแท่ง</label></div>
-                <div class="checkbox-group"><input type="checkbox" id="show-ornament" checked><label>แสดงป้ายราคาทองรูปพรรณ</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show-bar" checked><label>แสดงหมวด ราคาทองคำแท่ง</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show-ornament" checked><label>แสดงหมวด ราคาทองรูปพรรณ</label></div>
+                <hr style="margin: 10px 0; border: 0; height: 1px; background: #ddd;">
+                <div class="checkbox-group"><input type="checkbox" id="show-orn-buy" checked><label>แสดง ป้ายรับซื้อ (ทองรูปพรรณ)</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show-orn-sell" checked><label>แสดง ป้ายขายออก (ทองรูปพรรณ)</label></div>
+                <hr style="margin: 10px 0; border: 0; height: 1px; background: #ddd;">
                 <div class="checkbox-group"><input type="checkbox" id="show-marquee" checked><label>แสดงแถบข้อความตัววิ่ง</label></div>
+            </div>
+
+            <hr>
+
+            <h3>⚖️ ตั้งค่ารับซื้อทองรูปพรรณ</h3>
+            <div class="box">
+                <div class="form-group">
+                    <label>รูปแบบการแสดงผล</label>
+                    <select id="orn-buy-mode" onchange="toggleOrnMode()">
+                        <option value="percentage">แบบที่ 2: หัก % จากราคาทองคำแท่ง (ใช้คำว่า "รับซื้อ")</option>
+                        <option value="base_tax">แบบที่ 1: ดึงราคาจากสมาคม (เปลี่ยนคำเป็น "ฐานภาษี")</option>
+                    </select>
+                </div>
+                <div class="form-group" id="orn-percent-setting">
+                    <label>กำหนด % ที่ต้องการหัก (เช่น 5 หรือ 4.5)</label>
+                    <input type="number" id="orn-percent-input" value="5" step="0.1">
+                </div>
             </div>
 
             <hr>
@@ -124,7 +141,7 @@
                 </div>
                 <h4 style="color: #6d1b22; margin-top: 15px;">ราคาทองรูปพรรณ 96.5%</h4>
                 <div class="grid-2">
-                    <div><label>รับซื้อ (บาท)</label><input type="number" id="orn-buy-input"></div>
+                    <div><label>รับซื้อ/ฐานภาษี (บาท)</label><input type="number" id="orn-buy-input"></div>
                     <div><label>ขายออก (บาท)</label><input type="number" id="orn-sell-input"></div>
                 </div>
             </div>
