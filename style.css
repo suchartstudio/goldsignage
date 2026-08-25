@@ -22,7 +22,20 @@ html, body {
     transition: background-color 0.5s ease;
 }
 
-.clock-container {
+/* ==================================
+   วันที่และเวลา มุมบน ซ้าย-ขวา
+   ================================== */
+.date-container {
+    position: absolute;
+    top: 3vh;
+    left: 4vw;
+    color: var(--text-color);
+    text-align: left;
+    z-index: 100;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6); 
+}
+
+.time-container {
     position: absolute;
     top: 3vh;
     right: 4vw;
@@ -32,11 +45,14 @@ html, body {
     text-shadow: 2px 2px 5px rgba(0,0,0,0.6); 
 }
 
-.clock-date {
+.clock-text {
     font-size: clamp(1.5rem, 2.5vw, 4vh);
     font-weight: 500;
 }
 
+/* ==================================
+   เค้าโครงหลัก
+   ================================== */
 .layout-wrapper {
     width: 100vw;
     height: 91vh; 
