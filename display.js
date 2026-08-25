@@ -19,9 +19,6 @@ const db = getFirestore(app);
 const urlParams = new URLSearchParams(window.location.search);
 const branchId = urlParams.get('branch') || '1';
 
-// ==========================================
-// การจัดการประวัติราคา (Dashboard)
-// ==========================================
 let lastRecordedPrice = null;
 
 async function initLastRecordedPrice() {
@@ -57,9 +54,6 @@ function formatToIntegerPrice(priceStr) {
     return isNaN(num) ? "-" : num.toLocaleString('en-US');
 }
 
-// ==========================================
-// ดึงราคาจากเว็บสมาคม
-// ==========================================
 async function fetchGoldPrice() {
     try {
         const proxyUrl = "https://us-central1-goldshop-d5860.cloudfunctions.net/goldProxy";
@@ -73,19 +67,20 @@ async function fetchGoldPrice() {
 
         const barBuyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLBuy');
         const barSellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLSell');
+        const ornBuyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblOMBuy'); 
         const ornSellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblOMSell');
         const updateTimeEl = doc.getElementById('DetailPlace_uc_goldprices1_lblAsTime');
 
         if (!barBuyEl) throw new Error("ไม่สามารถอ่านข้อมูลจากเว็บสมาคมค้าทองคำได้");
 
         const rawBarBuy = parseFloat(barBuyEl.innerText.replace(/,/g, ''));
-        const calculatedOrnBuy = Math.round(rawBarBuy * 0.95);
+        const rawOrnBuy = ornBuyEl ? parseFloat(ornBuyEl.innerText.replace(/,/g, '')) : 0;
 
         return {
             rawBarBuy: rawBarBuy, 
+            rawOrnBuy: rawOrnBuy,
             barBuy: formatToIntegerPrice(barBuyEl.innerText),
             barSell: formatToIntegerPrice(barSellEl.innerText),
-            ornamentBuy: calculatedOrnBuy.toLocaleString('en-US'), 
             ornamentSell: formatToIntegerPrice(ornSellEl.innerText),
             updateTime: `อัพเดทล่าสุดตามสมาคมฯ: วันที่ ${new Date().toLocaleDateString('th-TH')} เวลา ${updateTimeEl.innerText.trim()}`
         };
@@ -95,46 +90,61 @@ async function fetchGoldPrice() {
     }
 }
 
-// ==========================================
-// 🌟 ฟังก์ชันอัปเดตข้อมูลบนหน้าจอ (ราคา, สี, การซ่อน/แสดง)
-// ==========================================
 function updateDisplay(data) {
-    // 1. อัปเดตราคา
     if(data.barBuy !== undefined) document.getElementById('bar-buy').innerText = data.barBuy;
     if(data.barSell !== undefined) document.getElementById('bar-sell').innerText = data.barSell;
-    if(data.ornamentBuy !== undefined) document.getElementById('ornament-buy').innerText = data.ornamentBuy;
     if(data.ornamentSell !== undefined) {
         const ornSellEl = document.getElementById('ornament-sell');
         if (ornSellEl) ornSellEl.innerText = data.ornamentSell;
     }
     
+    let finalOrnBuy = "-";
+    if (data.ornBuyMode === 'base_tax') {
+        document.getElementById('ornament-buy-label').innerText = "ฐานภาษี";
+        finalOrnBuy = data.rawOrnBuy ? formatToIntegerPrice(data.rawOrnBuy) : (data.ornamentBuy || "-");
+    } else {
+        document.getElementById('ornament-buy-label').innerText = "รับซื้อ";
+        const percent = parseFloat(data.ornPercent) || 5;
+        const basePrice = data.rawBarBuy || parseFloat((data.barBuy || "0").toString().replace(/,/g, ''));
+        if (basePrice > 0) {
+            finalOrnBuy = Math.round(basePrice - (basePrice * (percent / 100))).toLocaleString('en-US');
+        } else {
+            finalOrnBuy = data.ornamentBuy || "-";
+        }
+    }
+    document.getElementById('ornament-buy').innerText = finalOrnBuy;
+    
     if (data.marquee !== undefined) document.getElementById('marquee-text').innerText = data.marquee;
     if (data.updateTime !== undefined) document.getElementById('update-time').innerText = data.updateTime;
 
-    // 2. อัปเดตโลโก้
     const logoEl = document.getElementById('shop-logo');
     if (data.logoUrl) {
         logoEl.src = data.logoUrl;
         logoEl.style.display = 'block';
     }
 
-    // 3. 🌟 อัปเดต CSS สี (ผ่าน CSS Variables)
     if (data.bgColor) document.documentElement.style.setProperty('--bg-color', data.bgColor);
     if (data.textColor) document.documentElement.style.setProperty('--text-color', data.textColor);
     if (data.borderColor) document.documentElement.style.setProperty('--border-color', data.borderColor);
     if (data.marqueeColor) document.documentElement.style.setProperty('--marquee-bg', data.marqueeColor);
 
-    // 4. 🌟 อัปเดตการเปิด/ปิด ส่วนต่างๆ
     document.getElementById('section-bar').style.display = data.showBar !== false ? 'flex' : 'none';
     document.getElementById('section-ornament').style.display = data.showOrnament !== false ? 'flex' : 'none';
     document.getElementById('section-marquee').style.display = data.showMarquee !== false ? 'flex' : 'none';
+
+    document.getElementById('ornament-buy-container').style.display = data.showOrnBuy !== false ? 'flex' : 'none';
+    document.getElementById('ornament-sell-container').style.display = data.showOrnSell !== false ? 'flex' : 'none';
+
+    const ornContainer = document.getElementById('ornament-container');
+    if (data.showOrnBuy === false || data.showOrnSell === false) {
+        ornContainer.classList.add('single-price');
+    } else {
+        ornContainer.classList.remove('single-price');
+    }
 }
 
 let autoFetchInterval = null;
 
-// ==========================================
-// Listener ดึงข้อมูล Realtime จาก Firebase
-// ==========================================
 onSnapshot(doc(db, "branches", branchId), async (docSnap) => {
     if (docSnap.exists()) {
         const config = docSnap.data();
@@ -163,9 +173,7 @@ onSnapshot(doc(db, "branches", branchId), async (docSnap) => {
             if (manualConfig.barBuy) {
                 const rawManualPrice = parseFloat(manualConfig.barBuy.toString().replace(/,/g, ''));
                 checkAndRecordPrice(rawManualPrice);
-                const calculatedManualOrnBuy = Math.round(rawManualPrice * 0.95);
                 manualConfig.barBuy = formatToIntegerPrice(manualConfig.barBuy);
-                manualConfig.ornamentBuy = calculatedManualOrnBuy.toLocaleString('en-US');
             }
             
             if (manualConfig.barSell) manualConfig.barSell = formatToIntegerPrice(manualConfig.barSell);
